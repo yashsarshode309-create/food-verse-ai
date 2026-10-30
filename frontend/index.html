@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodVerse AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1020;--side:#0e1630;--card:#131c38;--line:#223056;--tx:#e8edf8;--mut:#8b9ac0;--acc:#17d9a3;--ok:#17c98f;--warn:#f0a020;--bad:#ef5350}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 Inter,sans-serif}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--side);border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh}
+.logo{font:700 19px Sora,sans-serif;padding:0 10px 18px}.logo i{font-style:normal;color:var(--acc)}
+aside button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--mut);padding:10px 12px;border-radius:10px;font:500 14px Inter;cursor:pointer;margin-bottom:2px}
+aside button.on{background:#17d9a31f;color:var(--acc)}
+main{padding:28px;max-width:1000px;width:100%}
+h1{font:700 26px Sora,sans-serif;margin:0 0 4px}.sub{color:var(--mut);margin:0 0 22px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:10px}
+input,select,textarea{width:100%;margin-top:4px;padding:9px 10px;background:#0b1328;color:var(--tx);border:1px solid var(--line);border-radius:8px;font:inherit}
+textarea{min-height:70px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--mut);margin-bottom:12px}
+.drop img,.drop video{max-width:100%;max-height:200px;border-radius:8px;display:block;margin:0 auto 8px}
+.btn{background:var(--acc);color:#04251c;border:0;border-radius:10px;padding:11px 20px;font:600 15px Inter;cursor:pointer;width:100%}
+.btn:disabled{opacity:.6;cursor:wait}
+.ghost{background:none;border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:6px 12px;cursor:pointer;font:500 13px Inter;margin-top:6px}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.empty{color:var(--mut);text-align:center;padding:60px 10px}
+.err{color:var(--bad);font-weight:600;margin-top:10px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.hd h2{font:700 21px Sora,sans-serif;margin:0}
+.badge{color:#04140f;font-weight:700;font-size:13px;padding:4px 12px;border-radius:99px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:14px 0}
+.tile{background:#0b1328;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.tile b{display:block;font:700 20px Sora,sans-serif}.tile small{font:500 12px Inter;color:var(--mut)}.tile span{color:var(--mut);font-size:12px}
+h4{margin:16px 0 4px;font-size:13px;color:var(--acc)}ul,ol{margin:0;padding-left:20px}li{margin:3px 0}
+.muted{color:var(--mut);font-size:13px}
+.res{animation:in .4s ease-out}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bar{height:10px;background:#0b1328;border-radius:9px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;border-radius:9px;animation:grow 1s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{width:0}}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #04251c;border-top-color:transparent;border-radius:50%;animation:s .7s linear infinite;margin-right:8px;vertical-align:-2px}@keyframes s{to{transform:rotate(360deg)}}
+.hero{background:linear-gradient(120deg,#0f3d3a,#131c38);border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:18px}
+.hero h1 span{color:var(--acc)}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.feat .card{cursor:pointer;text-align:left;color:var(--tx);font:inherit;transition:border-color .2s}.feat .card:hover{border-color:var(--acc)}
+.feat b{display:block;margin-bottom:4px}.feat span{color:var(--mut);font-size:13px}
+@media(max-width:760px){.app{grid-template-columns:1fr}aside{position:static;height:auto;display:flex;overflow-x:auto;padding:10px}.logo{display:none}aside button{white-space:nowrap;width:auto}.grid{grid-template-columns:1fr}main{padding:16px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script type="text/babel">
+const { useState } = React;
+const API = "http://localhost:8000"; // after deploying, replace with your backend URL, e.g. https://foodverse-api.onrender.com
+const sc = n => n >= 70 ? "var(--ok)" : n >= 40 ? "var(--warn)" : "var(--bad)";
+const Tile = ({ l, v, u = "" }) => <div className="tile"><b>{v ?? "–"}<small>{u}</small></b><span>{l}</span></div>;
+const List = ({ items, ol }) => { const T = ol ? "ol" : "ul"; return <T>{(items || []).map((x, i) => <li key={i}>{typeof x === "object" ? Object.values(x).join(" – ") : x}</li>)}</T>; };
+const pct = c => Math.round((c || 0) * 100) + "%";
+const vc = v => v === "Fresh" ? "var(--ok)" : v === "Spoiled" ? "var(--bad)" : "var(--warn)";
+const stc = s => s === "ok" ? "var(--ok)" : s === "violation" ? "var(--bad)" : "var(--warn)";
+const download = o => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(o, null, 2)], { type: "application/json" })); a.download = "hygiene-report.json"; a.click(); };
+
+const MODS = [
+  { id: "food", name: "Food Recognition", title: "Multimodal Food Lens", sub: "Combine image and voice or text context for accurate nutrition.", path: "/food", button: "Analyze meal",
+    upload: { name: "image", label: "Upload food image", accept: "image/*" }, fields: [{ name: "context", label: "Add context (optional)", area: 1, voice: 1 }],
+    render: o => <>
+      <div className="hd"><h2>{o.dish}</h2><span className="badge" style={{ background: sc(o.health_score) }}>Health score {o.health_score}</span></div>
+      <div className="tiles"><Tile l="Calories" v={o.calories} u=" kcal" /><Tile l="Protein" v={o.protein_g} u=" g" /><Tile l="Carbs" v={o.carbs_g} u=" g" /><Tile l="Fat" v={o.fat_g} u=" g" /></div>
+      <h4>Ingredients</h4><List items={o.ingredients} /><h4>Health insights</h4><p>{o.insights}</p><List items={o.tips} />
+      <p className="muted">Portion about {o.portion_grams} g. Confidence {pct(o.confidence)}. All values are estimates.</p></> },
+  { id: "fresh", name: "Freshness Detector", title: "AI Freshness Detector", sub: "Detect spoilage using visual cues and your storage details.", path: "/freshness", button: "Check freshness",
+    upload: { name: "image", label: "Upload photo of food", accept: "image/*" },
+    fields: [{ name: "storage_days", label: "Stored for (days)", type: "number" }, { name: "storage_type", label: "Storage", options: ["Room temp", "Refrigerated", "Frozen"] }, { name: "notes", label: "Smell or texture notes", voice: 1 }],
+    render: o => <>
+      <div className="hd"><h2>{o.item}</h2><span className="badge" style={{ background: vc(o.verdict) }}>{o.verdict}</span></div>
+      <div className="bar"><i style={{ width: o.score + "%", background: sc(o.score) }} /></div>
+      <b style={{ color: o.safe_to_eat ? "var(--ok)" : "var(--bad)" }}>{o.safe_to_eat ? "Safe to eat" : "Unsafe: do not eat"}</b>
+      <h4>What I see</h4><List items={o.signs} /><h4>Recommendation</h4><p>{o.recommendation}</p>
+      <p className="muted">Freshness {o.score}/100. Confidence {pct(o.confidence)}. A photo can't detect every risk; when in doubt, throw it out.</p></> },
+  { id: "hyg", name: "Hygiene Monitor", title: "Hygiene & Safety Monitor", sub: "Review kitchen footage for compliance.", path: "/hygiene", button: "Run inspection",
+    upload: { name: "video", label: "Upload CCTV or kitchen video", accept: "video/*" }, fields: [{ name: "rules", label: "Compliance rules (optional)", area: 1, voice: 1 }],
+    render: o => <>
+      <div className="hd"><h2>Inspection report</h2><button className="ghost" onClick={() => download(o)}>Download report</button></div>
+      <div className="tiles"><Tile l="Compliance" v={o.score} u="/100" /><Tile l="Violations" v={(o.violations || []).length} /></div>
+      <h4>Indicators</h4>{(o.indicators || []).map((x, i) => <div key={i}><span className="dot" style={{ background: stc(x.status) }} /><b>{x.name}</b>: {x.note}</div>)}
+      <h4>Alerts</h4>{(o.violations || []).length ? <List items={o.violations.map(v => `${v.time_s}s [${v.severity}] ${v.issue}`)} /> : <p>No violations seen in the sampled frames.</p>}
+      <h4>Summary</h4><p>{o.summary}</p></> },
+  { id: "cook", name: "Smart Kitchen", title: "Smart Recipe Generator", sub: "Describe a dish or ingredients, or upload a photo.", path: "/cook", button: "Generate recipe",
+    upload: { name: "image", label: "Upload photo (optional)", accept: "image/*", optional: 1 },
+    fields: [{ name: "text", label: "Dish or ingredients", area: 1, voice: 1, def: "rice, onion, tomato, paneer" }, { name: "diet", label: "Diet", options: ["none", "vegetarian", "vegan", "eggetarian"] }, { name: "minutes", label: "Minutes available", type: "number", def: 30 }],
+    render: o => <>
+      <div className="hd"><h2>{o.name}</h2></div><h4>Ingredients</h4><List items={o.ingredients} />
+      {(o.missing_items || []).length > 0 && <><h4>You still need</h4><List items={o.missing_items} /></>}
+      <h4>Preparation steps</h4><List ol items={o.steps} /><h4>Tips</h4><List items={o.tips} /></> },
+  { id: "plan", name: "Meal Planner", title: "AI Personalized Meal Planner", sub: "Daily and weekly plans built around your profile.", path: "/plan", button: "Generate AI plan",
+    fields: [{ name: "age", label: "Age", type: "number", def: 20 }, { name: "sex", label: "Sex", options: ["male", "female"] }, { name: "height_cm", label: "Height (cm)", type: "number", def: 170 }, { name: "weight_kg", label: "Weight (kg)", type: "number", def: 65 },
+      { name: "activity", label: "Activity", options: ["1.2", "1.4", "1.6", "1.8"], def: "1.4" }, { name: "goal", label: "Goal", options: ["lose", "maintain", "gain"], def: "maintain" }, { name: "diet", label: "Diet", options: ["none", "vegetarian", "vegan", "eggetarian"] },
+      { name: "allergies", label: "Allergies" }, { name: "conditions", label: "Medical notes" }, { name: "recent_meals", label: "Recent meals (to adapt the plan)", area: 1, voice: 1 }],
+    render: o => <>
+      <div className="tiles"><Tile l="Daily calories" v={o.target_calories} u=" kcal" /><Tile l="Protein" v={o.protein_g} u=" g" /><Tile l="Hydration" v={o.water_l} u=" L" /><Tile l="Health score" v={o.health_score} /></div>
+      <h4>Today's plan</h4>{(o.meals || []).map((m, i) => <div key={i} style={{ marginBottom: 10 }}><b>{m.type}: {m.name}</b> <span className="muted">{m.calories} kcal · P{m.protein_g} C{m.carbs_g} F{m.fat_g}</span><div>{m.description}</div>{m.alternative && <div className="muted">Swap: {m.alternative}</div>}</div>)}
+      <h4>Weekly overview</h4><List items={o.weekly} /><h4>AI coach</h4><List items={o.coach_tips} /></> },
+];
+
+function Module({ m }) {
+  const [file, setFile] = useState(null), [prev, setPrev] = useState(null);
+  const [v, setV] = useState(Object.fromEntries(m.fields.map(f => [f.name, f.def ?? (f.options ? f.options[0] : "")])));
+  const [busy, setBusy] = useState(false), [out, setOut] = useState(null), [err, setErr] = useState("");
+  const pick = e => { const f = e.target.files[0]; setFile(f); setPrev(f ? URL.createObjectURL(f) : null); };
+  const voice = name => {
+    const S = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!S) return setErr("Voice input isn't supported in this browser. Try Chrome or Edge.");
+    const r = new S(); r.lang = "en-IN";
+    r.onresult = e => setV(p => ({ ...p, [name]: (p[name] ? p[name] + " " : "") + e.results[0][0].transcript }));
+    r.start();
+  };
+  async function run() {
+    setBusy(true); setErr(""); setOut(null);
+    try {
+      const f = new FormData();
+      if (m.upload) { if (!file && !m.upload.optional) throw new Error("Choose a file first."); if (file) f.append(m.upload.name, file); }
+      m.fields.forEach(x => f.append(x.name, v[x.name]));
+      const r = await fetch(API + m.path, { method: "POST", body: f });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || "Server error " + r.status);
+      setOut(j);
+    } catch (e) { setErr(e instanceof TypeError ? "Can't reach the backend at " + API + ". Start it with: uvicorn main:app --reload" : e.message); }
+    setBusy(false);
+  }
+  return (
+    <>
+      <h1>{m.title}</h1><p className="sub">{m.sub}</p>
+      <div className="grid">
+        <div className="card">
+          {m.upload && <div className="drop">
+            {prev && (m.upload.accept.startsWith("video") ? <video src={prev} controls /> : <img src={prev} alt="Selected upload" />)}
+            <label style={{ margin: 0 }}>{m.upload.label}<input type="file" accept={m.upload.accept} onChange={pick} /></label></div>}
+          <div className={m.id === "plan" ? "two" : ""}>
+            {m.fields.map(x => <label key={x.name} style={x.area && m.id === "plan" ? { gridColumn: "1/-1" } : null}>{x.label}
+              {x.options ? <select value={v[x.name]} onChange={e => setV({ ...v, [x.name]: e.target.value })}>{x.options.map(o => <option key={o}>{o}</option>)}</select>
+                : x.area ? <textarea value={v[x.name]} onChange={e => setV({ ...v, [x.name]: e.target.value })} />
+                : <input type={x.type || "text"} value={v[x.name]} onChange={e => setV({ ...v, [x.name]: e.target.value })} />}
+              {x.voice && <button type="button" className="ghost" onClick={() => voice(x.name)}>Speak</button>}</label>)}
+          </div>
+          <button className="btn" onClick={run} disabled={busy}>{busy && <span className="spin" />}{busy ? "Analyzing" : m.button}</button>
+          {err && <div className="err" role="alert">{err}</div>}
+        </div>
+        <div className="card">{out ? <div className="res">{m.render(out)}</div> : <div className="empty">Results appear here after you run the analysis.</div>}</div>
+      </div>
+    </>
+  );
+}
+
+function Overview({ go }) {
+  return (
+    <>
+      <div className="hero"><h1>Welcome to FoodVerse <span>AI</span></h1><p className="sub" style={{ margin: 0 }}>One platform for food recognition, freshness, kitchen hygiene, cooking and meal planning.</p></div>
+      <div className="feat">{MODS.map(m => <button key={m.id} className="card" onClick={() => go(m.id)}><b>{m.name}</b><span>{m.sub}</span></button>)}</div>
+    </>
+  );
+}
+
+function App() {
+  const [page, setPage] = useState("home");
+  const m = MODS.find(x => x.id === page);
+  return (
+    <div className="app">
+      <aside><div className="logo">Food<i>Verse</i></div>
+        <nav aria-label="Modules">
+          <button className={page === "home" ? "on" : ""} onClick={() => setPage("home")}>Overview</button>
+          {MODS.map(x => <button key={x.id} className={page === x.id ? "on" : ""} onClick={() => setPage(x.id)}>{x.name}</button>)}
+        </nav></aside>
+      <main>{m ? <Module key={m.id} m={m} /> : <Overview go={setPage} />}</main>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

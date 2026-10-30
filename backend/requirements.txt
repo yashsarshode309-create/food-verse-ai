@@ -1,0 +1,9 @@
+# Backend API
+fastapi
+uvicorn
+python-multipart
+# AI / LLM inference (Gemini)
+google-genai
+# Computer vision and image/video processing
+opencv-python-headless
+numpy
